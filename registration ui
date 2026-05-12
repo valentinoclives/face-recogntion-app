@@ -1,0 +1,75 @@
+registration_ui.py
+import cv2
+import os
+import tkinter as tk
+from tkinter import messagebox
+from PIL import Image, ImageTk
+
+# Create dataset directory
+DATASET_DIR = "registered_faces"
+os.makedirs(DATASET_DIR, exist_ok=True)
+
+# Initialize webcam
+video_capture = cv2.VideoCapture(0)
+
+# Main app window
+root = tk.Tk()
+root.title("Face Registration System")
+root.geometry("900x700")
+root.configure(bg="#f2f2f2")
+
+# Variables
+current_frame = None
+captured_count = 0
+
+# =========================
+# UI Components
+# =========================
+
+title_label = tk.Label(
+    root,
+    text="Face Registration System",
+    font=("Arial", 22, "bold"),
+    bg="#f2f2f2",
+    fg="#333333"
+)
+
+title_label.pack(pady=15)
+
+name_label = tk.Label(
+    root,
+    text="Enter Full Name:",
+    font=("Arial", 14),
+    bg="#f2f2f2"
+)
+
+name_label.pack()
+
+name_entry = tk.Entry(
+    root,
+    font=("Arial", 14),
+    width=30
+)
+
+name_entry.pack(pady=10)
+
+video_label = tk.Label(root)
+video_label.pack(pady=20)
+
+status_label = tk.Label(
+    root,
+    text="Ready",
+    font=("Arial", 12),
+    bg="#f2f2f2",
+    fg="green"
+)
+
+status_label.pack(pady=10)
+
+# =========================
+# Face Capture Function
+# =========================
+
+def capture_face():
+
+cv2.destroyAllWindows()
