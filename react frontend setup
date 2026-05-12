@@ -1,0 +1,3 @@
+frontend/:
+npx create-react-app .
+npm install react-webcam axios
