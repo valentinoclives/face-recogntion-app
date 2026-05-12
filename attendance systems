@@ -1,0 +1,63 @@
+attendance_systems.py
+import cv2
+import face_recognition
+import os
+import numpy as np
+import pandas as pd
+from datetime import datetime
+
+# Folder containing known face images
+KNOWN_FACES_DIR = "known_faces"
+ATTENDANCE_FILE = "attendance.csv"
+
+known_face_encodings = []
+known_face_names = []
+
+print("Loading known faces...")
+
+# Load known face images
+for filename in os.listdir(KNOWN_FACES_DIR):
+    if filename.endswith((".jpg", ".jpeg", ".png")):
+        path = os.path.join(KNOWN_FACES_DIR, filename)
+
+        image = face_recognition.load_image_file(path)
+        encodings = face_recognition.face_encodings(image)
+
+        if len(encodings) > 0:
+            encoding = encodings[0]
+            known_face_encodings.append(encoding)
+
+            name = os.path.splitext(filename)[0]
+            known_face_names.append(name)
+
+            print(f"Loaded: {name}")
+        else:
+            print(f"No face found in {filename}")
+
+# Create attendance file if it doesn't exist
+if not os.path.exists(ATTENDANCE_FILE):
+    df = pd.DataFrame(columns=["Name", "Date", "Time"])
+    df.to_csv(ATTENDANCE_FILE, index=False)
+
+# Load existing attendance
+attendance_df = pd.read_csv(ATTENDANCE_FILE)
+
+# Track already marked attendees for current session
+marked_names = set(attendance_df["Name"].values)
+
+print("Starting attendance camera...")
+
+# Start webcam
+video_capture = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = video_capture.read()
+
+    if not ret:
+        break
+
+    # Resize frame for faster performance
+    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+
+    # Convert BGR to RGB
+    rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
