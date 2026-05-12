@@ -1,0 +1,60 @@
+db_manager.py
+  import sqlite3
+import pickle
+import os
+from datetime import datetime
+
+DB_PATH = "database/face_recognition.db"
+
+# Create database folder if missing
+os.makedirs("database", exist_ok=True)
+
+class FaceRecognitionDB:
+
+    def __init__(self):
+        self.connection = sqlite3.connect(DB_PATH)
+        self.cursor = self.connection.cursor()
+        self.create_tables()
+
+    def create_tables(self):
+
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                encoding BLOB NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        ''')
+
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS attendance (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                name TEXT,
+                date TEXT,
+                time TEXT,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        ''')
+
+        self.connection.commit()
+
+    def register_user(self, name, encoding):
+
+        encoding_blob = pickle.dumps(encoding)
+
+        created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        self.cursor.execute(
+            '''
+            INSERT INTO users (name, encoding, created_at)
+            VALUES (?, ?, ?)
+            ''',
+            (name, encoding_blob, created_at)
+        )
+
+        self.connection.commit()
+
+        print(f"User '{name}' registered successfully.")
+        self.connection.close()
