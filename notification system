@@ -1,0 +1,67 @@
+notification_sytem.py
+import cv2
+import face_recognition
+import os
+import numpy as np
+from datetime import datetime
+
+from telegram_notifier import send_telegram_message
+# from email_notifier import send_email_notification
+
+KNOWN_FACES_DIR = "known_faces"
+
+known_face_encodings = []
+known_face_names = []
+
+print("Loading known faces...")
+
+# Load known faces
+for filename in os.listdir(KNOWN_FACES_DIR):
+
+    if filename.endswith((".jpg", ".jpeg", ".png")):
+
+        path = os.path.join(KNOWN_FACES_DIR, filename)
+
+        image = face_recognition.load_image_file(path)
+        encodings = face_recognition.face_encodings(image)
+
+        if len(encodings) > 0:
+
+            known_face_encodings.append(encodings[0])
+
+            name = os.path.splitext(filename)[0]
+            known_face_names.append(name)
+
+            print(f"Loaded: {name}")
+
+# Track notifications to avoid spam
+recent_notifications = {}
+
+NOTIFICATION_COOLDOWN = 30  # seconds
+
+# Start webcam
+video_capture = cv2.VideoCapture(0)
+
+print("Starting camera...")
+
+while True:
+
+    ret, frame = video_capture.read()
+
+    if not ret:
+        break
+
+    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+
+    rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+
+    face_locations = face_recognition.face_locations(rgb_small_frame)
+
+    face_encodings = face_recognition.face_encodings(
+        rgb_small_frame,
+        face_locations
+    )
+
+    face_names = []
+
+cv2.destroyAllWindows()
