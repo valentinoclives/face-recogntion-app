@@ -1,0 +1,69 @@
+multi_camera_system.py
+import cv2
+import face_recognition
+import os
+import numpy as np
+import threading
+
+# Folder containing known face images
+KNOWN_FACES_DIR = "known_faces"
+
+known_face_encodings = []
+known_face_names = []
+
+print("Loading known faces...")
+
+# Load known faces
+for filename in os.listdir(KNOWN_FACES_DIR):
+    if filename.endswith((".jpg", ".jpeg", ".png")):
+        path = os.path.join(KNOWN_FACES_DIR, filename)
+
+        image = face_recognition.load_image_file(path)
+        encodings = face_recognition.face_encodings(image)
+
+        if len(encodings) > 0:
+            encoding = encodings[0]
+            known_face_encodings.append(encoding)
+
+            name = os.path.splitext(filename)[0]
+            known_face_names.append(name)
+
+            print(f"Loaded: {name}")
+
+# Camera sources
+CAMERA_SOURCES = [
+    0,
+    1,
+    # Add IP cameras below if needed
+    # "rtsp://username:password@192.168.1.100:554/stream"
+]
+
+# Thread function for each camera
+
+def process_camera(camera_source, camera_id):
+
+    print(f"Starting Camera {camera_id}...")
+
+    video_capture = cv2.VideoCapture(camera_source)
+
+    while True:
+        ret, frame = video_capture.read()
+
+        if not ret:
+            print(f"Camera {camera_id}: Failed to read frame")
+            break
+
+        # Resize frame for performance
+        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+
+        # Convert BGR to RGB
+        rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+
+        # Detect faces
+        face_locations = face_recognition.face_locations(rgb_small_frame)
+        face_encodings = face_recognition.face_encodings(
+            rgb_small_frame,
+            face_locations
+        )
+
+cv2.destroyAllWindows()
