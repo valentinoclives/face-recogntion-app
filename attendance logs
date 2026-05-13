@@ -1,0 +1,6 @@
+attendance_logs: {
+  "log_1": {
+    "name": "Maggie",
+    "timestamp": "2026-05-13 15:30:00"
+  }
+}
