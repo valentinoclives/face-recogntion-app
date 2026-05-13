@@ -1,0 +1,6 @@
+users: {
+  "id_1": {
+    "name": "Maggie",
+    "image_url": "https://..."
+  }
+}
