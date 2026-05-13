@@ -1,6 +1,9 @@
 # face-recogntion-app
+
 face recognition app
+
 face-recognition-app/
+
 ├── known_faces/
 │   ├── john.jpg
 │   ├── sarah.jpg
