@@ -1,0 +1,31 @@
+recognition_system.py
+import cv2
+import face_recognition
+import os
+import numpy as np
+
+from attendance_logger import log_attendance
+
+KNOWN_FACES_DIR = "known_faces"
+
+known_face_encodings = []
+known_face_names = []
+
+print("Loading known faces...")
+
+# Load known faces
+for filename in os.listdir(KNOWN_FACES_DIR):
+
+    if filename.endswith(("jpg", "jpeg", "png")):
+
+        path = os.path.join(KNOWN_FACES_DIR, filename)
+
+        image = face_recognition.load_image_file(path)
+
+        encodings = face_recognition.face_encodings(image)
+
+        if len(encodings) > 0:
+
+            known_face_encodings.append(encodings[0])
+
+cv2.destroyAllWindows()
