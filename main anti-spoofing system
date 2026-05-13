@@ -1,0 +1,54 @@
+anti_spoofing_system.py
+import cv2
+import face_recognition
+import numpy as np
+import os
+from scipy.spatial import distance as dist
+
+# ==============================
+# Eye Aspect Ratio Calculation
+# ==============================
+
+def eye_aspect_ratio(eye):
+
+    A = dist.euclidean(eye[1], eye[5])
+    B = dist.euclidean(eye[2], eye[4])
+    C = dist.euclidean(eye[0], eye[3])
+
+    ear = (A + B) / (2.0 * C)
+
+    return ear
+
+# ==============================
+# Load Known Faces
+# ==============================
+
+KNOWN_FACES_DIR = "known_faces"
+
+known_face_encodings = []
+known_face_names = []
+
+print("Loading known faces...")
+
+for filename in os.listdir(KNOWN_FACES_DIR):
+
+    if filename.endswith(("jpg", "jpeg", "png")):
+
+        path = os.path.join(KNOWN_FACES_DIR, filename)
+
+        image = face_recognition.load_image_file(path)
+
+        encodings = face_recognition.face_encodings(image)
+
+        if len(encodings) > 0:
+
+            known_face_encodings.append(encodings[0])
+
+            name = os.path.splitext(filename)[0]
+            known_face_names.append(name)
+
+            print(f"Loaded: {name}")
+
+# ==============================
+# Blink Detection Settings
+cv2.destroyAllWindows()
